@@ -30,3 +30,11 @@ model Task {
   userId      Int
   user        User      @relation(fields: [userId], references: [id])
 }
+
+model TaskJobLog {
+  id        Int      @id @default(autoincrement())
+  status    String   // "success" or "failed"
+  message   String?
+  checkedCount Int    @default(0)
+  runAt     DateTime @default(now())
+}

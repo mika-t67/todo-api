@@ -22,6 +22,17 @@ CREATE TABLE "Task" (
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "TaskJobLog" (
+    "id" SERIAL NOT NULL,
+    "status" TEXT NOT NULL,
+    "message" TEXT,
+    "checkedCount" INTEGER NOT NULL DEFAULT 0,
+    "runAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "TaskJobLog_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 

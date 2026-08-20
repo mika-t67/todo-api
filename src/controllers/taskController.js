@@ -94,5 +94,17 @@ async function deleteTask(req, res) {
     res.status(500).json({ error: "サーバーエラーが発生しました" });
   }
 }
+async function getJobLogs(req, res) {
+  try {
+    const logs = await prisma.taskJobLog.findMany({
+      orderBy: { runAt: "desc" },
+      take: 20,
+    });
+    res.json(logs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "サーバーエラーが発生しました" });
+  }
+}
 
-module.exports = { getTasks, getTaskById, createTask, updateTask, deleteTask };
+module.exports = { getTasks, getTaskById, createTask, updateTask, deleteTask, getJobLogs };
