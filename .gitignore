@@ -3,3 +3,8 @@ node_modules/
 generated/
 dist/
 *.log
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
+prisma.config.ts.bak
