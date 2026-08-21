@@ -37,13 +37,18 @@ async function runCheckDueTasksJob(retries = 2) {
       return runCheckDueTasksJob(retries - 1);
     }
 
-    await prisma.taskJobLog.create({
-      data: {
-        status: "failed",
-        message: err.message,
-        checkedCount: 0,
-      },
-    });
+    // 失敗ログの記録自体も失敗する可能性があるので、ここも必ずtry/catchで囲む
+    try {
+      await prisma.taskJobLog.create({
+        data: {
+          status: "failed",
+          message: err.message,
+          checkedCount: 0,
+        },
+      });
+    } catch (logErr) {
+      console.error("[cron] 失敗ログの記録にも失敗しました:", logErr.message);
+    }
 
     return { success: false, error: err.message };
   }
