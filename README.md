@@ -154,8 +154,8 @@ Authorization: Bearer <JWTトークン>
 | 項目 | 対応内容 |
 |---|---|
 | SQLインジェクション | Prisma ORMによりクエリが自動的にパラメータ化されるため対策済み(生SQLは未使用) |
-| XSS | `helmet` によるセキュリティヘッダー設定。JSON APIのためHTMLを直接返さない設計 |
-| CSRF | Cookieを使わずJWT(Authorizationヘッダー)で認証しているため、CSRFの主要な攻撃経路が存在しない |
+| XSS | JSON APIのためHTMLを直接返さない設計。フロントエンド(React)はJSX内で値を自動エスケープするため、スクリプト注入を防止。`helmet`によるセキュリティヘッダー設定は補完的な防御層として追加 |
+| CSRF | JWTをlocalStorageに保存し、Authorizationヘッダーで明示的に送信する方式のため、ブラウザが自動送信するCookieを悪用するCSRF攻撃の経路が存在しない。トレードオフとして、XSSが発生した場合にトークンが窃取されるリスクがあるため、XSS対策(Reactの自動エスケープ、外部入力の`dangerouslySetInnerHTML`不使用)を徹底している |
 | パスワード保護 | `bcrypt` でハッシュ化して保存 |
 | 秘密情報管理 | `.env` で管理し `.gitignore` で除外、`.env.example` でキーのみ共有 |
 | レート制限 | `express-rate-limit` により、全体で15分100リクエスト、認証系は15分10リクエストに制限 |
@@ -166,3 +166,4 @@ Authorization: Bearer <JWTトークン>
 - 開発環境ではローカルの `prisma dev`(組み込みPostgres)を使用しています。本番運用時は別途マネージドPostgres(RDS、Neon等)への切り替えを想定しています。
 - MongoDBはMongoDB Atlas無料枠を使用しています。
 - チャット機能は単一ルーム(`general`)のみ対応しています。
+- 現在はシングルサーバー構成のため、複数サーバーへのスケールアウト時は `@socket.io/redis-adapter` 等を用いたクロスサーバーでのメッセージ配信の仕組みが別途必要になります。
