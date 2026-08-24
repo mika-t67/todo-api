@@ -21,7 +21,7 @@ Node.js (Express) + PostgreSQL (Prisma) + MongoDB (Socket.io) で構築した、
 
 ```mermaid
 erDiagram
-    User ||--o{ Task : "has many"}
+    User ||--o{ Task : "has many"
     User {
         int id PK
         string email UK
