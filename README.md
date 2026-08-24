@@ -15,7 +15,68 @@ Node.js (Express) + PostgreSQL (Prisma) + MongoDB (Socket.io) で構築した、
 | 5 | スケジュールタスク管理 | node-cronで毎分実行、実行ログ記録、失敗時リトライ、モニタリングAPI |
 | 6 | リアルタイム機能 | Socket.io + JWT認証 + MongoDB(Atlas)に履歴保存、複数同時接続対応 |
 
-## 技術スタック
+## システム構成
+
+### ER図
+
+```mermaid
+erDiagram
+    User ||--o{ Task : "has many"}
+    User {
+        int id PK
+        string email UK
+        string password
+        datetime createdAt
+    }
+    Task {
+        int id PK
+        string title
+        string description
+        string status
+        datetime dueDate
+        datetime createdAt
+        datetime updatedAt
+        int userId FK
+    }
+    TaskJobLog {
+        int id PK
+        string status
+        string message
+        int checkedCount
+        datetime runAt
+    }
+```
+
+補足: `TaskJobLog` は User / Task と直接の外部キー関係を持たない独立したログテーブルのため、ER図上ではリレーションを設定していません。
+
+
+### アーキテクチャ図
+
+```mermaid
+graph TB
+    subgraph Client["クライアント"]
+        React["React (Vite)<br/>localhost:5173"]
+    end
+
+    subgraph Server["todo-api サーバー (localhost:3000)"]
+        Express["Express<br/>REST API"]
+        SocketIO["Socket.io<br/>リアルタイムチャット"]
+        Cron["node-cron<br/>定期ジョブ(毎分)<br/>期限切れ間近タスクを検出"]
+    end
+
+    subgraph DB["データストア"]
+        Postgres[("PostgreSQL (Prisma)<br/>User / Task / TaskJobLog")]
+        Mongo[("MongoDB Atlas<br/>ChatMessage")]
+    end
+
+    React -- "REST API (JWT認証)" --> Express
+    React -- "Socket.io (JWT認証)" --> SocketIO
+    Express -- "Prisma ORM" --> Postgres
+    Cron -- "タスクを検索" --> Postgres
+    Cron -- "実行結果をログとして記録" --> Postgres
+    Express -- "ログ取得API" --> Postgres
+    SocketIO -- "Mongoose" --> Mongo
+```
 
 - Node.js / Express
 - PostgreSQL(Prisma ORM 7系、ローカルは `prisma dev` で起動)
@@ -25,6 +86,9 @@ Node.js (Express) + PostgreSQL (Prisma) + MongoDB (Socket.io) で構築した、
 - JWT(jsonwebtoken)、bcrypt(パスワードハッシュ化)
 - helmet、express-rate-limit(セキュリティ)
 - Jest、Supertest(テスト)
+
+## システム構成
+
 
 ## セットアップ手順
 
